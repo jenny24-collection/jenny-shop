@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login | Jenny Collection</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .container { max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        input, button { width: 100%; margin: 10px 0; padding: 10px; }
+        #admin-panel { display: none; } /* Tersembunyi sebelum login */
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="login-form">
+        <h2>Login Admin</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Masuk</button>
+    </div>
+
+    <div id="admin-panel">
+        <h2>Tambah Produk</h2>
+        <input type="text" id="nama" placeholder="Nama Produk">
+        <button onclick="tambahProduk()">Simpan Produk</button>
+        <button onclick="logout()" style="background:red; color:white;">Logout</button>
+    </div>
+</div>
+
+<script>
+    const supabase = supabase.createClient('URL_ANDA', 'KEY_ANDA');
+
+    async function login() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        
+        if (error) alert(error.message);
+        else checkUser();
+    }
+
+    function checkUser() {
+        const user = supabase.auth.getUser();
+        if (user) {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+        }
+    }
+
+    function logout() {
+        supabase.auth.signOut();
+        location.reload();
+    }
+
+    checkUser(); // Cek status saat halaman dibuka
+</script>
+</body>
+</html>
