@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Detail Produk | Jenny Collection</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #fff; margin: 0; }
+        
+        /* Header Navy Tegas (Sesuai Halaman Utama) */
+        header { 
+            background: #1a237e; 
+            color: white; 
+            padding: 20px 5%; 
+            display: flex; 
+            align-items: center; 
+            gap: 30px;
+        }
+        header a { color: #d63384; text-decoration: none; font-weight: bold; background: white; padding: 8px 15px; border-radius: 6px; }
+        header h2 { margin: 0; font-size: 20px; font-weight: 500; }
+
+        .product-container { max-width: 1000px; margin: 40px auto; display: flex; gap: 60px; padding: 20px; }
+        .img-large { flex: 1; height: 450px; background: #eee; border-radius: 12px; }
+        .details { flex: 1; }
+        .price-large { font-size: 32px; color: #d63384; font-weight: bold; margin: 15px 0; }
+        
+        .btn-add { 
+            background: #d63384; 
+            color: white; 
+            border: none; 
+            padding: 15px 40px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            width: 100%; 
+            transition: 0.3s; 
+        }
+        .btn-add:hover { background: #b02a69; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html">← Kembali</a>
+        <h2>Detail Produk</h2>
+    </header>
+
+    <div class="product-container">
+        <div class="img-large"></div>
+        <div class="details">
+            <h1>Summer Dress Floral</h1>
+            <div class="price-large">Rp 150.000</div>
+            <p style="line-height: 1.6; color: #555;">Deskripsi produk: Dress cantik dengan motif floral yang cocok untuk musim panas. Bahan katun ringan dan nyaman digunakan untuk segala aktivitas kasual Anda.</p>
+            <button class="btn-add">Tambah ke Keranjang</button>
+        </div>
+    </div>
+
+</body>
+</html>
