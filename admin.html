@@ -2,58 +2,44 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Login | Jenny Collection</title>
+    <title>Admin Dashboard | Jenny Collection</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        .container { max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
-        input, button { width: 100%; margin: 10px 0; padding: 10px; }
-        #admin-panel { display: none; } /* Tersembunyi sebelum login */
+        body { font-family: sans-serif; max-width: 500px; margin: 40px auto; padding: 20px; }
+        input { width: 100%; padding: 10px; margin-bottom: 10px; }
+        button { width: 100%; padding: 10px; background: #d63384; color: white; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
+    <h2>Admin: Tambah Produk</h2>
+    <input type="text" id="nama" placeholder="Nama Produk">
+    <input type="number" id="harga" placeholder="Harga">
+    <input type="text" id="kategori" placeholder="Kategori">
+    <input type="text" id="gambar_url" placeholder="URL Gambar (Link Foto)">
+    <button onclick="tambahProduk()">Simpan Produk ke Katalog</button>
 
-<div class="container">
-    <div id="login-form">
-        <h2>Login Admin</h2>
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">Masuk</button>
-    </div>
+    <script>
+        const SUPABASE_URL = 'https://fkbkdhmutieriyjqsiaz.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_VP4uq4EYVSzcuBxDNZJ9Fg_OmmvoRm4';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    <div id="admin-panel">
-        <h2>Tambah Produk</h2>
-        <input type="text" id="nama" placeholder="Nama Produk">
-        <button onclick="tambahProduk()">Simpan Produk</button>
-        <button onclick="logout()" style="background:red; color:white;">Logout</button>
-    </div>
-</div>
+        async function tambahProduk() {
+            const produkBaru = {
+                nama: document.getElementById('nama').value,
+                harga: parseInt(document.getElementById('harga').value),
+                kategori: document.getElementById('kategori').value,
+                gambar_url: document.getElementById('gambar_url').value
+            };
 
-<script>
-    const supabase = supabase.createClient('URL_ANDA', 'KEY_ANDA');
+            const { error } = await supabase.from('produk').insert([produkBaru]);
 
-    async function login() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        
-        if (error) alert(error.message);
-        else checkUser();
-    }
-
-    function checkUser() {
-        const user = supabase.auth.getUser();
-        if (user) {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'block';
+            if (error) {
+                alert("Gagal: " + error.message);
+            } else {
+                alert("Berhasil! Produk sudah masuk ke katalog.");
+                location.reload();
+            }
         }
-    }
-
-    function logout() {
-        supabase.auth.signOut();
-        location.reload();
-    }
-
-    checkUser(); // Cek status saat halaman dibuka
-</script>
+    </script>
 </body>
 </html>
