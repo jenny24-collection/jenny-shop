@@ -2,42 +2,62 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | Jenny Collection</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: sans-serif; max-width: 500px; margin: 40px auto; padding: 20px; }
-        input { width: 100%; padding: 10px; margin-bottom: 10px; }
-        button { width: 100%; padding: 10px; background: #d63384; color: white; border: none; cursor: pointer; }
+        body { font-family: 'Segoe UI', sans-serif; max-width: 500px; margin: 40px auto; padding: 20px; background: #f4f4f4; }
+        .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #d63384; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #b02a6c; }
     </style>
 </head>
 <body>
-    <h2>Admin: Tambah Produk</h2>
-    <input type="text" id="nama" placeholder="Nama Produk">
-    <input type="number" id="harga" placeholder="Harga">
-    <input type="text" id="kategori" placeholder="Kategori">
-    <input type="text" id="gambar_url" placeholder="URL Gambar (Link Foto)">
-    <button onclick="tambahProduk()">Simpan Produk ke Katalog</button>
+    <div class="container">
+        <h2>Admin: Tambah Produk</h2>
+        <input type="text" id="nama" placeholder="Nama Produk">
+        <input type="number" id="harga" placeholder="Harga (Angka saja)">
+        <input type="text" id="kategori" placeholder="Kategori">
+        <input type="text" id="gambar_url" placeholder="URL Gambar (Link Foto)">
+        <button onclick="tambahProduk()">Simpan Produk ke Katalog</button>
+    </div>
 
     <script>
+        // Konfigurasi Supabase
         const SUPABASE_URL = 'https://fkbkdhmutieriyjqsiaz.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_VP4uq4EYVSzcuBxDNZJ9Fg_OmmvoRm4';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZrYmtkaG11dGllcml5anFzaWF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5MjA0MzIsImV4cCI6MjA5NzQ5NjQzMn0.EEBWrk2kI98owsQNlOOPGBmLzXHQGoUBJqsOyl7lTrc';
+        
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function tambahProduk() {
-            const produkBaru = {
-                nama: document.getElementById('nama').value,
-                harga: parseInt(document.getElementById('harga').value),
-                kategori: document.getElementById('kategori').value,
-                gambar_url: document.getElementById('gambar_url').value
-            };
+            const nama = document.getElementById('nama').value;
+            const harga = document.getElementById('harga').value;
+            const kategori = document.getElementById('kategori').value;
+            const gambar_url = document.getElementById('gambar_url').value;
 
-            const { error } = await supabase.from('produk').insert([produkBaru]);
+            if (!nama || !harga) {
+                alert("Mohon isi Nama dan Harga produk!");
+                return;
+            }
+
+            const { error } = await supabase.from('produk').insert([{
+                nama: nama,
+                harga: parseInt(harga),
+                kategori: kategori,
+                gambar_url: gambar_url
+            }]);
 
             if (error) {
-                alert("Gagal: " + error.message);
+                alert("Gagal menyimpan: " + error.message);
+                console.error("Supabase Error:", error);
             } else {
                 alert("Berhasil! Produk sudah masuk ke katalog.");
-                location.reload();
+                // Mengosongkan form setelah sukses
+                document.getElementById('nama').value = '';
+                document.getElementById('harga').value = '';
+                document.getElementById('kategori').value = '';
+                document.getElementById('gambar_url').value = '';
             }
         }
     </script>
