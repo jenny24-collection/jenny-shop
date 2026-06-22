@@ -3,73 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jenny Collection | Katalog</title>
+    <title>Jenny's Collection | Katalog Eksklusif</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { display: flex; flex-direction: column; min-height: 100vh; }
-        main { flex: 1; }
+        .product-card:hover { transform: translateY(-5px); transition: 0.3s; }
     </style>
 </head>
-<body class="bg-slate-50">
+<body class="bg-gray-50 text-gray-800">
 
-    <nav class="bg-white border-b sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-pink-600">Jenny Collection</h1>
-            <input type="text" id="searchInput" placeholder="Cari produk..." class="bg-slate-100 border-none rounded-lg px-4 py-2 w-64 focus:ring-2 focus:ring-pink-500 outline-none">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-md mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-tight text-pink-600">Jenny's Collection</h1>
+            <span class="text-xs bg-pink-100 text-pink-600 px-2 py-1 rounded-full">Toko Online</span>
         </div>
     </nav>
 
-    <header class="bg-white border-b py-12 px-6 text-center">
-        <h2 class="text-4xl font-bold text-slate-900">Katalog Produk</h2>
-        <p class="text-slate-500 mt-2">Pilihan koleksi terbaru kami.</p>
-    </header>
+    <!-- Main Content -->
+    <main class="max-w-md mx-auto p-4">
+        <header class="mb-6">
+            <h2 class="text-2xl font-semibold">Produk Terbaru</h2>
+            <p class="text-gray-500 text-sm">Temukan koleksi pilihan kami hari ini.</p>
+        </header>
 
-    <main class="max-w-7xl mx-auto px-6 py-10">
-        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <p class="col-span-full text-center text-slate-400">Memuat data...</p>
+        <div id="produk-list" class="grid gap-4">
+            <p class="text-center py-10 text-gray-400">Sedang memuat koleksi...</p>
         </div>
     </main>
 
-    <footer class="bg-white border-t py-8 text-center text-slate-400 text-sm">
-        <p>&copy; 2026 Jenny Collection. Semua hak dilindungi.</p>
+    <!-- Footer -->
+    <footer class="text-center p-6 mt-10 text-sm text-gray-400">
+        &copy; 2026 Jenny's Collection
     </footer>
 
     <script>
-        const supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY');
+        const SUPABASE_URL = 'https://fkbkdhmutieriyjqsiaz.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZrYmtkaG11dGllcml5anFzaWF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5MjA0MzIsImV4cCI6MjA5NzQ5NjQzMn0.EEBWrk2kI98owsQNlOOPGBmLzXHQGoUBJqsOyl7lTrc';
+        
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        async function fetchProduk(search = '') {
-            let query = supabase.from('produk').select('*');
-            if (search) query = query.ilike('nama', `%${search}%`);
-            
-            const { data } = await query;
-            const grid = document.getElementById('product-grid');
-            grid.innerHTML = '';
-            
-            if (!data || data.length === 0) {
-                grid.innerHTML = '<p class="col-span-full text-center text-slate-500">Produk tidak ditemukan.</p>';
+        async function fetchProduk() {
+            const container = document.getElementById('produk-list');
+            const { data, error } = await supabase.from('produk').select('*');
+
+            if (error) {
+                container.innerHTML = `<p class="text-red-500 text-center">Gagal memuat data.</p>`;
                 return;
             }
-            
-            data.forEach(p => {
-                grid.innerHTML += `
-                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition">
-                        <img src="${p.gambar_url}" class="w-full h-56 object-cover">
-                        <div class="p-4">
-                            <h3 class="font-semibold text-slate-800">${p.nama}</h3>
-                            <p class="text-pink-600 font-bold mt-1">Rp ${p.harga.toLocaleString()}</p>
-                            <button class="mt-4 w-full border border-slate-900 hover:bg-slate-900 hover:text-white py-2 rounded-lg text-sm font-medium transition">
-                                Beli Sekarang
-                            </button>
-                        </div>
+
+            if (data.length === 0) {
+                container.innerHTML = `<p class="text-center py-10">Belum ada produk tersedia.</p>`;
+                return;
+            }
+
+            container.innerHTML = data.map(p => `
+                <div class="product-card bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-900">${p.nama}</h3>
+                    <p class="text-pink-600 font-bold text-lg my-1">Rp ${parseInt(p.harga).toLocaleString('id-ID')}</p>
+                    <p class="text-sm text-gray-600">${p.deskripsi || 'Tanpa deskripsi'}</p>
+                    <div class="mt-4 flex justify-between items-center text-xs font-medium uppercase tracking-wider text-gray-400">
+                        <span class="bg-gray-100 px-2 py-1 rounded">${p.kategori}</span>
+                        <span>Stok: ${p.stok}</span>
                     </div>
-                `;
-            });
+                </div>
+            `).join('');
         }
 
-        document.getElementById('searchInput').addEventListener('input', (e) => fetchProduk(e.target.value));
         fetchProduk();
     </script>
 </body>
-
 </html>
