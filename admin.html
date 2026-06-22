@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Jenny24 Collection</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --dark: #1A1A1A;
+    --gold: #C9A96E;
+    --cream: #FAF7F2;
+    --soft: #F0EBE3;
+    --muted: #888;
+    --danger: #E05050;
+    --success: #4CAF50;
+    --border: #E0D9D0;
+  }
+
+  body {
+    background: var(--cream);
+    font-family: 'Inter', sans-serif;
+    color: var(--dark);
+    min-height: 100vh;
+  }
+
+  /* LOGIN */
+  .login-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: var(--dark);
+  }
+
+  .login-logo {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .login-sub {
+    color: #666;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+  }
+
+  .login-box {
+    background: #222;
+    border-radius: 16px;
+    padding: 28px 24px;
+    width: 100%;
+    max-width: 360px;
+    border: 1px solid #333;
+  }
+
+  .login-box h2 {
+    color: white;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 0.75rem;
+    color: #aaa;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #333;
+    background: #2A2A2A;
+    color: white;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--gold);
+  }
+
+  .form-group select option { background: #2A2A2A; }
+
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: var(--gold);
+    color: var(--dark);
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    margin-top: 6px;
+    transition: opacity 0.2s;
+  }
+
+  .btn-primary:active { opacity: 0.85; }
+
+  .login-error {
+    color: var(--danger);
+    font-size: 0.8rem;
+    text-align: center;
+    margin-top: 10px;
+    display: none;
+  }
+
+  /* ADMIN PANEL */
+  .admin-screen { display: none; }
+
+  .admin-header {
+    background: var(--dark);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .admin-header h1 {
+    color: var(--gold);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .btn-logout {
+    background: transparent;
+    border: 1px solid #444;
+    color: #aaa;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 14px;
+    background: var(--soft);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+
+  .stat-num {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--dark);
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+
+  .btn-tambah {
+    margin: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    background: var(--dark);
+    color: var(--gold);
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    width: calc(100% - 28px);
+  }
+
+  .produk-list {
+    padding: 0 14px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .produk-item {
+    background: white;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    border: 1px solid var(--border);
+  }
+
+  .produk-item img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--soft);
+    flex-shrink: 0;
+  }
+
+  .produk-item-no-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    background: var(--soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .produk-item-info { flex: 1; min-width: 0; }
+
+  .produk-item-nama {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .produk-item-harga {
+    font-size: 0.82rem;
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  .produk-item-meta {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .produk-item-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .btn-edit, .btn-hapus {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    border: none;
+  }
+
+  .btn-edit { background: var(--soft); color: var(--dark); border: 1px solid var(--border); }
+  .btn-hapus { background: #FFF0F0; color: var(--danger); border: 1px solid #FFCDD2; }
+
+  /* MODAL FORM */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    align-items: flex-end;
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal-form {
+    background: white;
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 24px;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .modal-handle {
+    width: 40px;
+    height: 4px;
+    background: #DDD;
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+
+  .modal-form h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--dark);
+  }
+
+  .modal-form .form-group label { color: var(--muted); }
+
+  .modal-form .form-group input,
+  .modal-form .form-group select,
+  .modal-form .form-group textarea {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    color: var(--dark);
+  }
+
+  .modal-form .form-group input:focus,
+  .modal-form .form-group select:focus,
+  .modal-form .form-group textarea:focus {
+    border-color: var(--gold);
+  }
+
+  .modal-form .form-group select option { background: white; color: var(--dark); }
+
+  .preview-img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: none;
+    background: var(--soft);
+  }
+
+  .upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--cream);
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .upload-area:hover { border-color: var(--gold); color: var(--gold); }
+
+  #fileInput { display: none; }
+
+  .btn-simpan {
+    width: 100%;
+    padding: 14px;
+    background: var(--dark);
+    color: var(--gold);
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    margin-top: 8px;
+  }
+
+  .btn-batal {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    margin-top: 8px;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--dark);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 24px;
+    font-size: 0.85rem;
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+  }
+
+  .toast.show { opacity: 1; }
+
+  .loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  .loading-overlay.show { display: flex; }
+
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--soft);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-list {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-logo">Jenny24</div>
+  <div class="login-sub">Admin Panel</div>
+  <div class="login-box">
+    <h2>Masuk ke Dashboard</h2>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="admin">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Masuk</button>
+    <div class="login-error" id="loginError">Username atau password salah</div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-screen" id="adminScreen">
+  <div class="admin-header">
+    <h1>⚡ Jenny24 Admin</h1>
+    <button class="btn-logout" onclick="logout()">Keluar</button>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-num" id="statTotal">-</div>
+      <div class="stat-label">Produk</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statStok">-</div>
+      <div class="stat-label">Ada Stok</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statHabis">-</div>
+      <div class="stat-label">Habis</div>
+    </div>
+  </div>
+
+  <button class="btn-tambah" onclick="bukaFormTambah()">
+    <span>＋</span> Tambah Produk Baru
+  </button>
+
+  <div class="produk-list" id="produkList">
+    <div class="empty-list">Memuat produk...</div>
+  </div>
+</div>
+
+<!-- MODAL FORM -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-form">
+    <div class="modal-handle"></div>
+    <h2 id="formJudul">Tambah Produk</h2>
+
+    <img id="previewImg" class="preview-img" src="" alt="Preview">
+    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+      📷 Tap untuk pilih foto produk
+    </div>
+    <input type="file" id="fileInput" accept="image/*" onchange="previewGambar(this)">
+
+    <div style="height:14px"></div>
+
+    <div class="form-group">
+      <label>Nama Produk *</label>
+      <input type="text" id="fNama" placeholder="Contoh: Kemeja Batik Modern">
+    </div>
+    <div class="form-group">
+      <label>Harga (Rp) *</label>
+      <input type="number" id="fHarga" placeholder="150000">
+    </div>
+    <div class="form-group">
+      <label>Kategori</label>
+      <select id="fKategori">
+        <option value="">Pilih kategori</option>
+        <option>Atasan</option>
+        <option>Bawahan</option>
+        <option>Dress</option>
+        <option>Outer</option>
+        <option>Aksesoris</option>
+        <option>Sepatu</option>
+        <option>Tas</option>
+        <option>Lainnya</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Stok</label>
+      <input type="number" id="fStok" placeholder="0" value="0">
+    </div>
+    <div class="form-group">
+      <label>Deskripsi</label>
+      <textarea id="fDeskripsi" rows="3" placeholder="Deskripsi produk..."></textarea>
+    </div>
+
+    <button class="btn-simpan" onclick="simpanProduk()">💾 Simpan Produk</button>
+    <button class="btn-batal" onclick="tutupModal()">Batal</button>
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <span id="loadingText">Menyimpan...</span>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://fkbkdhmutieriyjqsiaz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_VP4uq4EYVSzcuBxDNZJ9Fg_OmmvoRm4';
+const BUCKET = 'produk_images';
+
+let editId = null;
+let fileGambar = null;
+let gambarLama = null;
+
+// === LOGIN ===
+async function doLogin() {
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/admin_users?username=eq.${encodeURIComponent(user)}&password=eq.${encodeURIComponent(pass)}&select=id`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    const data = await res.json();
+    if (data.length > 0) {
+      sessionStorage.setItem('admin_logged', 'true');
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminScreen').style.display = 'block';
+      fetchProduk();
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+    }
+  } catch(e) {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('admin_logged');
+  location.reload();
+}
+
+// Check session
+if (sessionStorage.getItem('admin_logged')) {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminScreen').style.display = 'block';
+  fetchProduk();
+}
+
+// Enter key login
+document.getElementById('loginPass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// === PRODUK ===
+async function fetchProduk() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/produk?select=*&order=created_at.desc`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+  });
+  const data = await res.json();
+  renderProduk(data);
+  updateStats(data);
+}
+
+function updateStats(data) {
+  document.getElementById('statTotal').textContent = data.length;
+  document.getElementById('statStok').textContent = data.filter(p => p.stok > 0).length;
+  document.getElementById('statHabis').textContent = data.filter(p => p.stok <= 0).length;
+}
+
+function gambarUrl(path) {
+  if (!path) return null;
+  if (path.startsWith('http')) return path;
+  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;
+}
+
+function formatHarga(h) {
+  return 'Rp ' + Number(h).toLocaleString('id-ID');
+}
+
+function renderProduk(data) {
+  window._adminProduk = data;
+  const list = document.getElementById('produkList');
+  if (!data.length) {
+    list.innerHTML = '<div class="empty-list">👗 Belum ada produk.<br>Tap tombol tambah di atas.</div>';
+    return;
+  }
+  list.innerHTML = data.map(p => `
+    <div class="produk-item">
+      ${p.gambar_url
+        ? `<img src="${gambarUrl(p.gambar_url)}" alt="${p.nama}" onerror="this.style.display='none'">`
+        : `<div class="produk-item-no-img">👗</div>`}
+      <div class="produk-item-info">
+        <div class="produk-item-nama">${p.nama}</div>
+        <div class="produk-item-harga">${formatHarga(p.harga)}</div>
+        <div class="produk-item-meta">${p.kategori || ''} · Stok: ${p.stok}</div>
+      </div>
+      <div class="produk-item-actions">
+        <button class="btn-edit" onclick="bukaFormEdit('${p.id}')">Edit</button>
+        <button class="btn-hapus" onclick="hapusProduk('${p.id}', '${p.nama}')">Hapus</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// === FORM ===
+function bukaFormTambah() {
+  editId = null;
+  fileGambar = null;
+  gambarLama = null;
+  document.getElementById('formJudul').textContent = '+ Tambah Produk';
+  document.getElementById('fNama').value = '';
+  document.getElementById('fHarga').value = '';
+  document.getElementById('fKategori').value = '';
+  document.getElementById('fStok').value = '0';
+  document.getElementById('fDeskripsi').value = '';
+  document.getElementById('previewImg').style.display = 'none';
+  document.getElementById('previewImg').src = '';
+  document.getElementById('fileInput').value = '';
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function bukaFormEdit(id) {
+  const p = window._adminProduk.find(x => x.id === id);
+  if (!p) return;
+  editId = id;
+  fileGambar = null;
+  gambarLama = p.gambar_url || null;
+  document.getElementById('formJudul').textContent = '✏️ Edit Produk';
+  document.getElementById('fNama').value = p.nama;
+  document.getElementById('fHarga').value = p.harga;
+  document.getElementById('fKategori').value = p.kategori || '';
+  document.getElementById('fStok').value = p.stok || 0;
+  document.getElementById('fDeskripsi').value = p.deskripsi || '';
+  
+  const prev = document.getElementById('previewImg');
+  if (p.gambar_url) {
+    prev.src = gambarUrl(p.gambar_url);
+    prev.style.display = 'block';
+  } else {
+    prev.style.display = 'none';
+  }
+  document.getElementById('fileInput').value = '';
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function tutupModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+function previewGambar(input) {
+  if (input.files && input.files[0]) {
+    fileGambar = input.files[0];
+    const reader = new FileReader();
+    reader.onload = e => {
+      const prev = document.getElementById('previewImg');
+      prev.src = e.target.result;
+      prev.style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+async function uploadGambar(file) {
+  const ext = file.name.split('.').pop();
+  const fileName = `${Date.now()}.${ext}`;
+  
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${fileName}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': file.type,
+      'x-upsert': 'true'
+    },
+    body: file
+  });
+  
+  if (!res.ok) throw new Error('Gagal upload gambar');
+  return fileName;
+}
+
+async function simpanProduk() {
+  const nama = document.getElementById('fNama').value.trim();
+  const harga = document.getElementById('fHarga').value;
+  
+  if (!nama || !harga) {
+    showToast('⚠️ Nama dan harga wajib diisi!');
+    return;
+  }
+
+  tampilLoading('Menyimpan produk...');
+
+  try {
+    let gambar_url = gambarLama;
+
+    if (fileGambar) {
+      tampilLoading('Mengupload gambar...');
+      gambar_url = await uploadGambar(fileGambar);
+    }
+
+    const payload = {
+      nama,
+      harga: Number(harga),
+      kategori: document.getElementById('fKategori').value || null,
+      stok: Number(document.getElementById('fStok').value) || 0,
+      deskripsi: document.getElementById('fDeskripsi').value.trim() || null,
+      gambar_url
+    };
+
+    let res;
+    if (editId) {
+      res = await fetch(`${SUPABASE_URL}/rest/v1/produk?id=eq.${editId}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(payload)
+      });
+    } else {
+      res = await fetch(`${SUPABASE_URL}/rest/v1/produk`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    sembunyiLoading();
+
+    if (res.ok || res.status === 201 || res.status === 204) {
+      tutupModal();
+      showToast(editId ? '✅ Produk berhasil diupdate!' : '✅
