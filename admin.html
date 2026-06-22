@@ -217,7 +217,7 @@ function loadProduk() {
       renderStats(data);
       renderList(data);
     })
-    .catch(function() { toast('❌ Gagal memuat produk'); });
+    .catch(function(e) { toast('❌ ' + e.message); });
 }
 
 function renderStats(data) {
