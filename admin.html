@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Jenny24 Collection</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: Arial, sans-serif; background:#FAF7F2; color:#1A1A1A; }
+
+/* LOGIN */
+#loginScreen {
+  min-height:100vh; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:24px; background:#1A1A1A;
+}
+.logo { font-size:2rem; font-weight:700; color:#C9A96E; letter-spacing:3px; margin-bottom:4px; }
+.logo-sub { color:#666; font-size:0.75rem; letter-spacing:3px; margin-bottom:40px; }
+.login-box { background:#222; border-radius:16px; padding:28px 24px; width:100%; max-width:360px; border:1px solid #333; }
+.login-box h2 { color:white; font-size:1.1rem; margin-bottom:20px; }
+.field { margin-bottom:14px; }
+.field label { display:block; font-size:0.75rem; color:#aaa; margin-bottom:6px; text-transform:uppercase; }
+.field input { width:100%; padding:12px 14px; border-radius:10px; border:1px solid #444; background:#2A2A2A; color:white; font-size:1rem; }
+.field input:focus { outline:none; border-color:#C9A96E; }
+.btn-login {
+  width:100%; padding:14px; background:#C9A96E; color:#1A1A1A;
+  border:none; border-radius:10px; font-size:1rem; font-weight:700;
+  cursor:pointer; margin-top:6px;
+}
+.login-err { color:#E05050; font-size:0.8rem; text-align:center; margin-top:10px; display:none; }
+
+/* ADMIN */
+#adminScreen { display:none; }
+.top-bar {
+  background:#1A1A1A; padding:14px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:100;
+}
+.top-bar h1 { color:#C9A96E; font-size:1rem; }
+.btn-out { background:transparent; border:1px solid #444; color:#aaa; padding:6px 12px; border-radius:8px; font-size:0.75rem; cursor:pointer; }
+
+.stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:14px; background:#F0EBE3; }
+.stat { background:white; border-radius:10px; padding:10px; text-align:center; border:1px solid #E0D9D0; }
+.stat-n { font-size:1.5rem; font-weight:700; }
+.stat-l { font-size:0.65rem; color:#888; text-transform:uppercase; margin-top:2px; }
+
+.btn-tambah {
+  margin:14px; display:flex; align-items:center; justify-content:center; gap:8px;
+  padding:14px; background:#1A1A1A; color:#C9A96E;
+  border:none; border-radius:12px; font-size:0.95rem; font-weight:700;
+  cursor:pointer; width:calc(100% - 28px);
+}
+
+.list { padding:0 14px 80px; display:flex; flex-direction:column; gap:10px; }
+.item {
+  background:white; border-radius:12px; padding:12px;
+  display:flex; gap:12px; align-items:center; border:1px solid #E0D9D0;
+}
+.item-img { width:60px; height:60px; border-radius:8px; object-fit:cover; background:#F0EBE3; flex-shrink:0; }
+.item-noimg { width:60px; height:60px; border-radius:8px; background:#F0EBE3; display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0; }
+.item-info { flex:1; min-width:0; }
+.item-nama { font-weight:700; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.item-harga { font-size:0.82rem; color:#C9A96E; font-weight:600; margin-top:2px; }
+.item-meta { font-size:0.72rem; color:#888; margin-top:2px; }
+.item-btns { display:flex; flex-direction:column; gap:6px; }
+.btn-edit { padding:6px 14px; border-radius:8px; font-size:0.75rem; background:#F0EBE3; color:#1A1A1A; border:1px solid #E0D9D0; cursor:pointer; }
+.btn-del { padding:6px 14px; border-radius:8px; font-size:0.75rem; background:#FFF0F0; color:#E05050; border:1px solid #FFCDD2; cursor:pointer; }
+
+/* MODAL */
+.overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:200; align-items:flex-end; }
+.overlay.show { display:flex; }
+.modal { background:white; border-radius:20px 20px 0 0; width:100%; max-height:90vh; overflow-y:auto; padding:24px; }
+.modal-handle { width:40px; height:4px; background:#DDD; border-radius:2px; margin:0 auto 20px; }
+.modal h2 { font-size:1.1rem; margin-bottom:20px; }
+.mfield { margin-bottom:14px; }
+.mfield label { display:block; font-size:0.75rem; color:#888; margin-bottom:6px; text-transform:uppercase; }
+.mfield input, .mfield select, .mfield textarea {
+  width:100%; padding:12px 14px; border-radius:10px; border:1px solid #E0D9D0;
+  background:#FAF7F2; color:#1A1A1A; font-size:0.95rem; font-family:Arial,sans-serif;
+}
+.mfield input:focus, .mfield select:focus, .mfield textarea:focus { outline:none; border-color:#C9A96E; }
+#previewImg { width:100%; height:160px; object-fit:cover; border-radius:10px; margin-bottom:10px; display:none; }
+.upload-box { border:2px dashed #E0D9D0; border-radius:10px; padding:20px; text-align:center; cursor:pointer; color:#888; font-size:0.85rem; }
+#fileInput { display:none; }
+.btn-save { width:100%; padding:14px; background:#1A1A1A; color:#C9A96E; border:none; border-radius:12px; font-size:1rem; font-weight:700; cursor:pointer; margin-top:8px; }
+.btn-cancel { width:100%; padding:12px; background:transparent; color:#888; border:1px solid #E0D9D0; border-radius:12px; font-size:0.9rem; cursor:pointer; margin-top:8px; }
+
+/* TOAST */
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#1A1A1A; color:white; padding:12px 20px; border-radius:24px; font-size:0.85rem; z-index:999; opacity:0; transition:opacity 0.3s; white-space:nowrap; }
+.toast.show { opacity:1; }
+
+/* LOADING */
+#loadingEl { position:fixed; inset:0; background:rgba(255,255,255,0.85); display:none; flex-direction:column; align-items:center; justify-content:center; gap:12px; z-index:500; font-size:0.9rem; color:#888; }
+#loadingEl.show { display:flex; }
+.spin { width:36px; height:36px; border:3px solid #F0EBE3; border-top-color:#C9A96E; border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="logo">Jenny24</div>
+  <div class="logo-sub">Admin Panel</div>
+  <div class="login-box">
+    <h2>Masuk ke Dashboard</h2>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="inUser" placeholder="admin">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="inPass" placeholder="••••••">
+    </div>
+    <button class="btn-login" type="button" onclick="doLogin()">Masuk</button>
+    <div class="login-err" id="loginErr">Username atau password salah!</div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminScreen">
+  <div class="top-bar">
+    <h1>⚡ Jenny24 Admin</h1>
+    <button class="btn-out" onclick="doLogout()">Keluar</button>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="sTotal">0</div><div class="stat-l">Produk</div></div>
+    <div class="stat"><div class="stat-n" id="sAda">0</div><div class="stat-l">Ada Stok</div></div>
+    <div class="stat"><div class="stat-n" id="sHabis">0</div><div class="stat-l">Habis</div></div>
+  </div>
+  <button class="btn-tambah" type="button" onclick="bukaTambah()">＋ Tambah Produk Baru</button>
+  <div class="list" id="listProduk"><p style="text-align:center;padding:40px;color:#888">Memuat...</p></div>
+</div>
+
+<!-- MODAL FORM -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 id="modalJudul">Tambah Produk</h2>
+    <img id="previewImg" src="" alt="preview">
+    <div class="upload-box" onclick="document.getElementById('fileInput').click()">📷 Tap untuk pilih foto</div>
+    <input type="file" id="fileInput" accept="image/*" onchange="onFileChange(this)">
+    <div style="height:12px"></div>
+    <div class="mfield"><label>Nama Produk *</label><input type="text" id="fNama" placeholder="Contoh: Dress Bunga"></div>
+    <div class="mfield"><label>Harga (Rp) *</label><input type="number" id="fHarga" placeholder="150000"></div>
+    <div class="mfield">
+      <label>Kategori</label>
+      <select id="fKat">
+        <option value="">Pilih kategori</option>
+        <option>Atasan</option><option>Bawahan</option><option>Dress</option>
+        <option>Outer</option><option>Aksesoris</option><option>Sepatu</option>
+        <option>Tas</option><option>Lainnya</option>
+      </select>
+    </div>
+    <div class="mfield"><label>Stok</label><input type="number" id="fStok" value="0" placeholder="0"></div>
+    <div class="mfield"><label>Deskripsi</label><textarea id="fDesk" rows="3" placeholder="Deskripsi produk..."></textarea></div>
+    <button class="btn-save" type="button" onclick="simpan()">💾 Simpan</button>
+    <button class="btn-cancel" type="button" onclick="tutupModal()">Batal</button>
+  </div>
+</div>
+
+<div id="loadingEl"><div class="spin"></div><span id="loadingTxt">Memuat...</span></div>
+<div class="toast" id="toastEl"></div>
+
+<script>
+const URL_SB = 'https://fkbkdhmutieriyjqsiaz.supabase.co';
+const KEY_SB = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZrYmtkaG11dGllcml5anFzaWF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5MjA0MzIsImV4cCI6MjA5NzQ5NjQzMn0.EEBWrk2kI98owsQNlOOPGBmLzXHQGoUBJqsOyl7lTrc';
+const BUCKET = 'produk_images';
+
+var editId = null;
+var fileObj = null;
+var imgLama = null;
+var dataProduk = [];
+
+// ---- LOGIN ----
+function doLogin() {
+  var u = document.getElementById('inUser').value.trim();
+  var p = document.getElementById('inPass').value;
+  document.getElementById('loginErr').style.display = 'none';
+  if (u === 'admin' && p === 'jenny24') {
+    sessionStorage.setItem('adm', '1');
+    tampilAdmin();
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('adm');
+  location.reload();
+}
+
+function tampilAdmin() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminScreen').style.display = 'block';
+  loadProduk();
+}
+
+document.getElementById('inPass').onkeydown = function(e) {
+  if (e.key === 'Enter') doLogin();
+};
+
+if (sessionStorage.getItem('adm') === '1') {
+  tampilAdmin();
+}
+
+// ---- PRODUK ----
+function headers() {
+  return { 'apikey': KEY_SB, 'Authorization': 'Bearer ' + KEY_SB, 'Content-Type': 'application/json' };
+}
+
+function loadProduk() {
+  fetch(URL_SB + '/rest/v1/produk?select=*&order=created_at.desc', { headers: headers() })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!Array.isArray(data)) { toast("❌ " + (data.message || "Data tidak valid")); return; }
+      dataProduk = data;
+      renderStats(data);
+      renderList(data);
+    })
+    .catch(function(e) { toast("❌ " + e.message); });
+}
+
+function renderStats(data) {
+  document.getElementById('sTotal').textContent = data.length;
+  document.getElementById('sAda').textContent = data.filter(function(p) { return p.stok > 0; }).length;
+  document.getElementById('sHabis').textContent = data.filter(function(p) { return p.stok <= 0; }).length;
+}
+
+function fmtHarga(h) {
+  return 'Rp ' + Number(h).toLocaleString('id-ID');
+}
+
+function imgUrl(path) {
+  if (!path) return null;
+  if (path.indexOf('http') === 0) return path;
+  return URL_SB + '/storage/v1/object/public/' + BUCKET + '/' + path;
+}
+
+function renderList(data) {
+  var el = document.getElementById('listProduk');
+  if (!data.length) {
+    el.innerHTML = '<p style="text-align:center;padding:40px;color:#888">Belum ada produk. Tap tombol tambah di atas.</p>';
+    return;
+  }
+  el.innerHTML = data.map(function(p, i) {
+    var img = p.gambar_url ? '<img class="item-img" src="' + imgUrl(p.gambar_url) + '" onerror="this.style.display=\'none\'">' : '<div class="item-noimg">👗</div>';
+    return '<div class="item">' + img +
+      '<div class="item-info">' +
+        '<div class="item-nama">#' + String(i+1).padStart(3,'0') + ' · ' + p.nama + '</div>' +
+        '<div class="item-harga">' + fmtHarga(p.harga) + '</div>' +
+        '<div class="item-meta">' + (p.kategori||'') + ' · Stok: ' + p.stok + '</div>' +
+      '</div>' +
+      '<div class="item-btns">' +
+        '<button class="btn-edit" onclick="bukaEdit(\'' + p.id + '\')">Edit</button>' +
+        '<button class="btn-del" onclick="hapus(\'' + p.id + '\',\'' + p.nama.replace(/'/g,"\\'") + '\')">Hapus</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+// ---- FORM ----
+function bukaTambah() {
+  editId = null; fileObj = null; imgLama = null;
+  document.getElementById('modalJudul').textContent = '+ Tambah Produk';
+  document.getElementById('fNama').value = '';
+  document.getElementById('fHarga').value = '';
+  document.getElementById('fKat').value = '';
+  document.getElementById('fStok').value = '0';
+  document.getElementById('fDesk').value = '';
+  document.getElementById('previewImg').style.display = 'none';
+  document.getElementById('fileInput').value = '';
+  document.getElementById('overlay').classList.add('show');
+}
+
+function bukaEdit(id) {
+  var p = dataProduk.find(function(x) { return x.id === id; });
+  if (!p) return;
+  editId = id; fileObj = null; imgLama = p.gambar_url || null;
+  document.getElementById('modalJudul').textContent = '✏️ Edit Produk';
+  document.getElementById('fNama').value = p.nama;
+  document.getElementById('fHarga').value = p.harga;
+  document.getElementById('fKat').value = p.kategori || '';
+  document.getElementById('fStok').value = p.stok || 0;
+  document.getElementById('fDesk').value = p.deskripsi || '';
+  var prev = document.getElementById('previewImg');
+  if (p.gambar_url) { prev.src = imgUrl(p.gambar_url); prev.style.display = 'block'; }
+  else { prev.style.display = 'none'; }
+  document.getElementById('fileInput').value = '';
+  document.getElementById('overlay').classList.add('show');
+}
+
+function tutupModal() {
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function onFileChange(input) {
+  if (input.files && input.files[0]) {
+    fileObj = input.files[0];
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var prev = document.getElementById('previewImg');
+      prev.src = e.target.result;
+      prev.style.display = 'block';
+    };
+    reader.readAsDataURL(fileObj);
+  }
+}
+
+function uploadGambar(file) {
+  var ext = file.name.split('.').pop();
+  var nama = Date.now() + '.' + ext;
+  return fetch(URL_SB + '/storage/v1/object/' + BUCKET + '/' + nama, {
+    method: 'POST',
+    headers: { 'apikey': KEY_SB, 'Authorization': 'Bearer ' + KEY_SB, 'Content-Type': file.type, 'x-upsert': 'true' },
+    body: file
+  }).then(function(r) {
+    if (!r.ok) throw new Error('Upload gagal');
+    return nama;
+  });
+}
+
+function simpan() {
+  var nama = document.getElementById('fNama').value.trim();
+  var harga = document.getElementById('fHarga').value;
+  if (!nama || !harga) { toast('⚠️ Nama dan harga wajib diisi!'); return; }
+
+  loading('Menyimpan...');
+
+  var doSave = function(gambar_url) {
+    var payload = {
+      nama: nama,
+      harga: Number(harga),
+      kategori: document.getElementById('fKat').value || null,
+      stok: Number(document.getElementById('fStok').value) || 0,
+      deskripsi: document.getElementById('fDesk').value.trim() || null,
+      gambar_url: gambar_url
+    };
+    var url = editId ? URL_SB + '/rest/v1/produk?id=eq.' + editId : URL_SB + '/rest/v1/produk';
+    var method = editId ? 'PATCH' : 'POST';
+    var h = headers();
+    h['Prefer'] = 'return=minimal';
+    fetch(url, { method: method, headers: h, body: JSON.stringify(payload) })
+      .then(function(r) {
+        hideLoading();
+        if (r.ok || r.status === 201 || r.status === 204) {
+          tutupModal();
+          toast(editId ? '✅ Produk diupdate!' : '✅ Produk ditambahkan!');
+          loadProduk();
+        } else {
+          toast('❌ Gagal menyimpan');
+        }
+      }).catch(function() { hideLoading(); toast('❌ Error koneksi'); });
+  };
+
+  if (fileObj) {
+    loading('Mengupload foto...');
+    uploadGambar(fileObj).then(function(namaFile) { doSave(namaFile); }).catch(function() { hideLoading(); toast('❌ Gagal upload foto'); });
+  } else {
+    doSave(imgLama);
+  }
+}
+
+function hapus(id, nama) {
+  if (!confirm('Hapus produk "' + nama + '"?')) return;
+  loading('Menghapus...');
+  fetch(URL_SB + '/rest/v1/produk?id=eq.' + id, { method: 'DELETE', headers: headers() })
+    .then(function(r) {
+      hideLoading();
+      if (r.ok || r.status === 204) { toast('🗑️ Produk dihapus'); loadProduk(); }
+      else { toast('❌ Gagal menghapus'); }
+    }).catch(function() { hideLoading(); toast('❌ Error'); });
+}
+
+function loading(txt) { document.getElementById('loadingTxt').textContent = txt; document.getElementById('loadingEl').classList.add('show'); }
+function hideLoading() { document.getElementById('loadingEl').classList.remove('show'); }
+function toast(msg) { var t = document.getElementById('toastEl'); t.textContent = msg; t.classList.add('show'); setTimeout(function() { t.classList.remove('show'); }, 3000); }
+</script>
+</body>
+</html>
