@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · Jenny's Thrift Shop</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#F5F5F5;color:#1C1917;min-height:100vh}
+
+/* LOGIN */
+#loginScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:#1C1917}
+.logo{font-size:1.8rem;font-weight:700;color:#E8D5D5;letter-spacing:2px;margin-bottom:4px;font-family:Georgia,serif}
+.logo-sub{color:#5A504A;font-size:0.72rem;letter-spacing:4px;margin-bottom:40px;text-transform:uppercase}
+.login-box{background:#242120;border-radius:16px;padding:28px 24px;width:100%;max-width:360px;border:1px solid #3A3330}
+.login-box h2{color:#E8D5D5;font-size:1rem;margin-bottom:20px;font-weight:500}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:0.72rem;color:#7A6E68;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
+.field input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #3A3330;background:#2E2B29;color:#E8D5D5;font-size:0.95rem;outline:none}
+.field input:focus{border-color:#9D6E6E}
+.btn-login{width:100%;padding:13px;background:#9D6E6E;color:white;border:none;border-radius:10px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-top:6px}
+.login-err{color:#C07070;font-size:0.8rem;text-align:center;margin-top:10px;display:none}
+
+/* ADMIN LAYOUT */
+#adminScreen{display:none;padding-bottom:70px}
+.top-bar{background:#1E3A5F;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.top-bar h1{color:#fff;font-size:0.95rem;font-family:Georgia,serif;letter-spacing:1px}
+.btn-out{background:transparent;border:1px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.7);padding:6px 12px;border-radius:8px;font-size:0.72rem;cursor:pointer}
+
+/* BOTTOM TAB NAV */
+.tab-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #E5DDD6;display:flex;z-index:200}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 12px;border:none;background:transparent;cursor:pointer;font-size:0.65rem;color:#9A9089;gap:3px;letter-spacing:0.5px;text-transform:uppercase}
+.tab-btn .ticon{font-size:1.3rem}
+.tab-btn.active{color:#E63946}
+.tab-btn.active .ticon{transform:scale(1.1)}
+
+/* TAB CONTENTS */
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px;background:#fff;border-bottom:1px solid #eee}
+.stat{background:#F5F5F5;border-radius:10px;padding:10px;text-align:center}
+.stat-n{font-size:1.5rem;font-weight:700;color:#1C1917}
+.stat-l{font-size:0.62rem;color:#9A9089;text-transform:uppercase;margin-top:2px;letter-spacing:0.5px}
+
+/* DAFTAR */
+.search-bar{padding:12px 14px;background:#fff;border-bottom:1px solid #eee}
+.search-bar input{width:100%;padding:9px 16px;border-radius:30px;border:1px solid #E5DDD6;background:#F5F5F5;font-size:0.85rem;outline:none}
+.search-bar input:focus{border-color:#E63946}
+.list{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.item{background:white;border-radius:12px;padding:12px;display:flex;gap:12px;align-items:center;border:1px solid #E5DDD6}
+.item-img{width:60px;height:60px;border-radius:8px;object-fit:cover;background:#E8D5D5;flex-shrink:0}
+.item-noimg{width:60px;height:60px;border-radius:8px;background:#EDE0DC;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.item-info{flex:1;min-width:0}
+.item-num{font-size:0.6rem;color:#E63946;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.item-nama{font-weight:700;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.item-harga{font-size:0.8rem;color:#E63946;font-weight:600;margin-top:2px}
+.item-meta{font-size:0.68rem;color:#9A9089;margin-top:2px}
+.item-btns{display:flex;flex-direction:column;gap:6px}
+.btn-edit{padding:6px 14px;border-radius:8px;font-size:0.72rem;background:#F5F5F5;color:#1C1917;border:1px solid #E5DDD6;cursor:pointer}
+.btn-del{padding:6px 14px;border-radius:8px;font-size:0.72rem;background:#FFF0F0;color:#B85C5C;border:1px solid #FFCDD2;cursor:pointer}
+.stok-badge{display:inline-block;font-size:0.6rem;font-weight:700;padding:2px 7px;border-radius:6px;margin-top:3px}
+.stok-ada{background:#E2F6EC;color:#1E8E5A}
+.stok-habis{background:#FCEAE9;color:#C0392B}
+
+/* FORM TAMBAH */
+.form-wrap{padding:16px 14px}
+.form-section{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #E5DDD6}
+.form-section-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:#9A9089;margin-bottom:14px;font-weight:700}
+.mfield{margin-bottom:14px}
+.mfield:last-child{margin-bottom:0}
+.mfield label{display:block;font-size:0.7rem;color:#9A9089;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
+.mfield input,.mfield select,.mfield textarea{width:100%;padding:11px 14px;border-radius:10px;border:1px solid #E5DDD6;background:#F5F5F5;color:#1C1917;font-size:0.92rem;font-family:Arial,sans-serif;outline:none}
+.mfield input:focus,.mfield select:focus,.mfield textarea:focus{border-color:#E63946}
+
+/* FOTO GRID */
+.foto-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.foto-thumb{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#EDE0DC}
+.foto-thumb img{width:100%;height:100%;object-fit:cover}
+.foto-del{position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;width:22px;height:22px;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.foto-thumb.add-btn{border:2px dashed #E5DDD6;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:1.5rem;color:#C5B8B0;gap:4px}
+.foto-thumb.add-btn span{font-size:0.65rem;color:#C5B8B0}
+.foto-count{font-size:0.7rem;color:#9A9089;text-align:center;margin-bottom:0}
+#fileInput{display:none}
+
+/* EDIT MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(28,25,23,0.6);z-index:300;align-items:flex-end}
+.overlay.show{display:flex}
+.modal{background:white;border-radius:24px 24px 0 0;width:100%;max-height:92vh;overflow-y:auto;padding:24px;animation:slideUp 0.3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:#E5DDD6;border-radius:2px;margin:0 auto 20px}
+.modal h2{font-size:1rem;margin-bottom:18px;font-weight:700}
+
+/* BUTTONS */
+.btn-save{width:100%;padding:13px;background:#1C1917;color:#E8D5D5;border:none;border-radius:12px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-top:8px}
+.btn-save-main{width:100%;padding:14px;background:#E63946;color:white;border:none;border-radius:12px;font-size:0.95rem;font-weight:700;cursor:pointer}
+.btn-cancel{width:100%;padding:11px;background:transparent;color:#9A9089;border:1px solid #E5DDD6;border-radius:12px;font-size:0.88rem;cursor:pointer;margin-top:8px}
+.btn-reset{width:100%;padding:10px;background:#F5F5F5;color:#9A9089;border:1px solid #E5DDD6;border-radius:10px;font-size:0.82rem;cursor:pointer;margin-top:6px}
+
+/* TOAST & LOADING */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1C1917;color:#E8D5D5;padding:10px 22px;border-radius:30px;font-size:0.8rem;z-index:999;opacity:0;transition:opacity 0.3s;white-space:nowrap;border:1px solid #3C3530}
+.toast.show{opacity:1}
+#loadingEl{position:fixed;inset:0;background:rgba(255,255,255,0.88);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:500;font-size:0.88rem;color:#9A9089}
+#loadingEl.show{display:flex}
+.spin{width:32px;height:32px;border:3px solid #E8D5D5;border-top-color:#E63946;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.empty-state{text-align:center;padding:60px 20px;color:#9A9089}
+.empty-state .eicon{font-size:3rem;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="logo">Jenny's Thrift Shop</div>
+  <div class="logo-sub">Admin Panel</div>
+  <div class="login-box">
+    <h2>Masuk ke Dashboard</h2>
+    <div class="field"><label>Username</label><input type="text" id="inUser" placeholder="admin"></div>
+    <div class="field"><label>Password</label><input type="password" id="inPass" placeholder="••••••"></div>
+    <button class="btn-login" type="button" onclick="doLogin()">Masuk</button>
+    <div class="login-err" id="loginErr">Username atau password salah!</div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminScreen">
+  <div class="top-bar">
+    <h1>Jenny's Thrift Shop · Admin</h1>
+    <button class="btn-out" onclick="doLogout()">Keluar</button>
+  </div>
+
+  <!-- TAB: DAFTAR PRODUK -->
+  <div class="tab-content active" id="tabDaftar">
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="sTotal">0</div><div class="stat-l">Produk</div></div>
+      <div class="stat"><div class="stat-n" id="sAda">0</div><div class="stat-l">Ada Stok</div></div>
+      <div class="stat"><div class="stat-n" id="sHabis">0</div><div class="stat-l">Habis</div></div>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="cariProduk" placeholder="🔍 Cari nama produk..." oninput="filterList()">
+    </div>
+    <div class="list" id="listProduk">
+      <div class="empty-state"><div class="spin" style="margin:0 auto"></div></div>
+    </div>
+  </div>
+
+  <!-- TAB: TAMBAH PRODUK -->
+  <div class="tab-content" id="tabTambah">
+    <div class="form-wrap">
+      <div id="editBanner" style="display:none;background:#FFF3CD;border:1px solid #FFD700;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:0.82rem;display:flex;align-items:center;justify-content:space-between">
+        <span>✏️ Mode edit produk <b id="editLabel"></b></span>
+        <button onclick="resetForm()" style="background:transparent;border:none;color:#B85C5C;cursor:pointer;font-size:0.82rem">✕ Batal edit</button>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">📷 Foto Produk</div>
+        <div class="foto-grid" id="fotoGrid"></div>
+        <div class="foto-count" id="fotoCount">0 / 20 foto</div>
+        <input type="file" id="fileInput" accept="image/*" multiple onchange="onFileChange(this)">
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">📝 Info Produk</div>
+        <div class="mfield"><label>Nama Produk *</label><input type="text" id="fNama" placeholder="Contoh: Dress Bunga Vintage"></div>
+        <div class="mfield"><label>Harga (Rp) *</label><input type="number" id="fHarga" placeholder="150000"></div>
+        <div class="mfield">
+          <label>Kategori</label>
+          <select id="fKat">
+            <option value="">Pilih kategori</option>
+            <option>Atasan</option><option>Bawahan</option><option>Dress</option>
+            <option>Outer</option><option>Aksesoris</option><option>Sepatu</option>
+            <option>Tas</option><option>Lainnya</option>
+          </select>
+        </div>
+        <div class="mfield"><label>Stok</label><input type="number" id="fStok" value="0" min="0"></div>
+        <div class="mfield"><label>Deskripsi</label><textarea id="fDesk" rows="3" placeholder="Ukuran, kondisi, bahan..."></textarea></div>
+      </div>
+
+      <button class="btn-save-main" type="button" onclick="simpan()">💾 Simpan Produk</button>
+      <button class="btn-reset" type="button" onclick="resetForm()">🗑 Bersihkan Form</button>
+    </div>
+  </div>
+
+  <!-- TAB NAV -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" id="navDaftar" onclick="switchTab('Daftar')">
+      <span class="ticon">📦</span>Daftar
+    </button>
+    <button class="tab-btn" id="navTambah" onclick="switchTab('Tambah')">
+      <span class="ticon">➕</span>Posting
+    </button>
+  </nav>
+</div>
+
+<!-- EDIT MODAL (dari tab daftar) -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 id="modalJudul">Edit Produk</h2>
+    <div class="foto-grid" id="fotoGridModal"></div>
+    <div class="foto-count" id="fotoCountModal">0 / 20 foto</div>
+    <input type="file" id="fileInputModal" accept="image/*" multiple onchange="onFileChangeModal(this)">
+    <div class="mfield" style="margin-top:14px"><label>Nama Produk *</label><input type="text" id="mNama"></div>
+    <div class="mfield"><label>Harga (Rp) *</label><input type="number" id="mHarga"></div>
+    <div class="mfield">
+      <label>Kategori</label>
+      <select id="mKat">
+        <option value="">Pilih kategori</option>
+        <option>Atasan</option><option>Bawahan</option><option>Dress</option>
+        <option>Outer</option><option>Aksesoris</option><option>Sepatu</option>
+        <option>Tas</option><option>Lainnya</option>
+      </select>
+    </div>
+    <div class="mfield"><label>Stok</label><input type="number" id="mStok" min="0"></div>
+    <div class="mfield"><label>Deskripsi</label><textarea id="mDesk" rows="3"></textarea></div>
+    <button class="btn-save" type="button" onclick="simpanModal()">💾 Simpan Perubahan</button>
+    <button class="btn-cancel" type="button" onclick="tutupModal()">Batal</button>
+  </div>
+</div>
+
+<div id="loadingEl"><div class="spin"></div><span id="loadingTxt">Memuat...</span></div>
+<div class="toast" id="toastEl"></div>
+
+<script>
+const URL_SB = 'https://fkbkdhmutieriyjqsiaz.supabase.co';
+const KEY_SB = 'sb_publishable_VP4uq4EYVSzcuBxDNZJ9Fg_OmmvoRm4';
+const BUCKET = 'produk_images';
+const MAX_FOTO = 20;
+
+var editId = null;
+var dataProduk = [];
+var fotoList = [];      // untuk form tambah (tab)
+var fotoListModal = []; // untuk modal edit
+
+// ======== AUTH ========
+async function sha256(str) {
+  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+
+async function doLogin() {
+  var u = document.getElementById('inUser').value.trim();
+  var p = document.getElementById('inPass').value;
+  var errEl = document.getElementById('loginErr');
+  var btn = document.querySelector('.btn-login');
+  errEl.style.display = 'none';
+  if (!u || !p) { errEl.textContent='Wajib diisi!'; errEl.style.display='block'; return; }
+  btn.textContent='Memeriksa...'; btn.disabled=true;
+  try {
+    var hash = await sha256(p);
+    var res = await fetch(URL_SB+'/rest/v1/admin_users?username=eq.'+encodeURIComponent(u)+'&password_hash=eq.'+hash+'&select=id,username',
+      {headers:hdrs()});
+    var data = await res.json();
+    if (Array.isArray(data) && data.length > 0) {
+      fetch(URL_SB+'/rest/v1/admin_users?id=eq.'+data[0].id,
+        {method:'PATCH',headers:hdrs('application/json'),body:JSON.stringify({last_login:new Date().toISOString()})});
+      sessionStorage.setItem('adm', JSON.stringify({id:data[0].id, exp:Date.now()+(8*60*60*1000)}));
+      tampilAdmin();
+    } else {
+      errEl.textContent='Username atau password salah!'; errEl.style.display='block';
+    }
+  } catch(e) {
+    errEl.textContent='Gagal terhubung!'; errEl.style.display='block';
+  }
+  btn.textContent='Masuk'; btn.disabled=false;
+}
+
+function doLogout() { sessionStorage.removeItem('adm'); location.reload(); }
+
+function cekSession() {
+  var s = sessionStorage.getItem('adm');
+  if (!s) return false;
+  try { var o=JSON.parse(s); if(Date.now()>o.exp){sessionStorage.removeItem('adm');return false;} return true; } catch(e){return false;}
+}
+
+function tampilAdmin() {
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('adminScreen').style.display='block';
+  loadProduk();
+  renderFotoGrid();
+}
+
+document.getElementById('inPass').onkeydown = function(e){ if(e.key==='Enter') doLogin(); };
+if (cekSession()) tampilAdmin();
+
+// ======== HELPERS ========
+function hdrs(ct) {
+  var h = {'apikey':KEY_SB,'Authorization':'Bearer '+KEY_SB};
+  if(ct) h['Content-Type']=ct;
+  return h;
+}
+function imgUrl(path) {
+  if(!path) return null;
+  if(path.indexOf('http')===0) return path;
+  return URL_SB+'/storage/v1/object/public/'+BUCKET+'/'+path;
+}
+function fmtRp(h) { return 'Rp '+Number(h).toLocaleString('id-ID'); }
+function numFmt(n) { return n?'#'+String(n).padStart(3,'0'):'#---'; }
+function toast(msg) {
+  var t=document.getElementById('toastEl');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2400);
+}
+function loading(txt) {
+  var el=document.getElementById('loadingEl');
+  if(txt){ document.getElementById('loadingTxt').textContent=txt; el.classList.add('show'); }
+  else el.classList.remove('show');
+}
+
+// ======== TAB SWITCH ========
+function switchTab(tab) {
+  ['Daftar','Tambah'].forEach(function(t){
+    document.getElementById('tab'+t).classList.toggle('active', t===tab);
+    document.getElementById('nav'+t).classList.toggle('active', t===tab);
+  });
+}
+
+// ======== LOAD PRODUK ========
+function loadProduk() {
+  fetch(URL_SB+'/rest/v1/produk?select=*&order=nomor.asc',{headers:hdrs()})
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if(!Array.isArray(data)){toast('❌ '+(data.message||'Error'));return;}
+    dataProduk=data;
+    renderStats(data);
+    renderList(data);
+  })
+  .catch(function(e){toast('❌ '+e.message);});
+}
+
+function renderStats(data) {
+  document.getElementById('sTotal').textContent=data.length;
+  document.getElementById('sAda').textContent=data.filter(function(p){return p.stok>0;}).length;
+  document.getElementById('sHabis').textContent=data.filter(function(p){return p.stok<=0;}).length;
+}
+
+function filterList() {
+  var q = document.getElementById('cariProduk').value.toLowerCase();
+  var filtered = q ? dataProduk.filter(function(p){ return p.nama.toLowerCase().indexOf(q)!==-1; }) : dataProduk;
+  renderList(filtered);
+}
+
+function renderList(data) {
+  var el=document.getElementById('listProduk');
+  if(!data.length){
+    el.innerHTML='<div class="empty-state"><div class="eicon">📦</div><p>Belum ada produk</p></div>';
+    return;
+  }
+  el.innerHTML=data.map(function(p){
+    var thumb=p.gambar_url?'<img class="item-img" src="'+imgUrl(p.gambar_url)+'" onerror="this.style.display=\'none\'">':'<div class="item-noimg">👗</div>';
+    var stokBadge=p.stok>0
+      ?'<span class="stok-badge stok-ada">Stok '+p.stok+'</span>'
+      :'<span class="stok-badge stok-habis">Habis</span>';
+    return '<div class="item">'+thumb+
+      '<div class="item-info">'+
+        '<div class="item-num">'+numFmt(p.nomor)+'</div>'+
+        '<div class="item-nama">'+p.nama+'</div>'+
+        '<div class="item-harga">'+fmtRp(p.harga)+'</div>'+
+        '<div class="item-meta">'+(p.kategori||'Tanpa kategori')+'</div>'+
+        stokBadge+
+      '</div>'+
+      '<div class="item-btns">'+
+        '<button class="btn-edit" onclick="bukaEdit(\''+p.id+'\')">✏️ Edit</button>'+
+        '<button class="btn-del" onclick="hapus(\''+p.id+'\',\''+p.nama.replace(/'/g,"\\'")+'\')">🗑 Hapus</button>'+
+      '</div></div>';
+  }).join('');
+}
+
+// ======== FOTO MANAGER (TAB TAMBAH) ========
+function renderFotoGrid() {
+  var grid=document.getElementById('fotoGrid');
+  if(!grid) return;
+  document.getElementById('fotoCount').textContent=fotoList.length+' / '+MAX_FOTO+' foto';
+  var html=fotoList.map(function(f,i){
+    return '<div class="foto-thumb"><img src="'+(f.preview||imgUrl(f.url))+'">'+
+      '<button class="foto-del" onclick="hapusFoto('+i+')">✕</button></div>';
+  }).join('');
+  if(fotoList.length<MAX_FOTO)
+    html+='<div class="foto-thumb add-btn" onclick="document.getElementById(\'fileInput\').click()"><span>📷</span><span>Tambah</span></div>';
+  grid.innerHTML=html;
+}
+
+function onFileChange(input) {
+  var files=Array.from(input.files);
+  var sisa=MAX_FOTO-fotoList.length;
+  if(files.length>sisa){toast('⚠️ Maks '+MAX_FOTO+' foto');files=files.slice(0,sisa);}
+  files.forEach(function(file){
+    var r=new FileReader();
+    r.onload=function(e){fotoList.push({file:file,preview:e.target.result,isNew:true});renderFotoGrid();};
+    r.readAsDataURL(file);
+  });
+  input.value='';
+}
+
+function hapusFoto(i){ fotoList.splice(i,1); renderFotoGrid(); }
+
+// ======== FOTO MANAGER (MODAL EDIT) ========
+function renderFotoGridModal() {
+  var grid=document.getElementById('fotoGridModal');
+  if(!grid) return;
+  document.getElementById('fotoCountModal').textContent=fotoListModal.length+' / '+MAX_FOTO+' foto';
+  var html=fotoListModal.map(function(f,i){
+    return '<div class="foto-thumb"><img src="'+(f.preview||imgUrl(f.url))+'">'+
+      '<button class="foto-del" onclick="hapusFotoModal('+i+')">✕</button></div>';
+  }).join('');
+  if(fotoListModal.length<MAX_FOTO)
+    html+='<div class="foto-thumb add-btn" onclick="document.getElementById(\'fileInputModal\').click()"><span>📷</span><span>Tambah</span></div>';
+  grid.innerHTML=html;
+}
+
+function onFileChangeModal(input) {
+  var files=Array.from(input.files);
+  var sisa=MAX_FOTO-fotoListModal.length;
+  if(files.length>sisa){toast('⚠️ Maks '+MAX_FOTO+' foto');files=files.slice(0,sisa);}
+  files.forEach(function(file){
+    var r=new FileReader();
+    r.onload=function(e){fotoListModal.push({file:file,preview:e.target.result,isNew:true});renderFotoGridModal();};
+    r.readAsDataURL(file);
+  });
+  input.value='';
+}
+
+function hapusFotoModal(i){ fotoListModal.splice(i,1); renderFotoGridModal(); }
+
+// ======== FORM TAMBAH (TAB) ========
+function resetForm() {
+  editId=null; fotoList=[];
+  document.getElementById('fNama').value='';
+  document.getElementById('fHarga').value='';
+  document.getElementById('fKat').value='';
+  document.getElementById('fStok').value='0';
+  document.getElementById('fDesk').value='';
+  document.getElementById('editBanner').style.display='none';
+  renderFotoGrid();
+  toast('Form dibersihkan');
+}
+
+async function simpan() {
+  var nama=document.getElementById('fNama').value.trim();
+  var harga=document.getElementById('fHarga').value;
+  if(!nama||!harga){toast('⚠️ Nama dan harga wajib!');return;}
+  loading('Menyimpan produk...');
+  try {
+    var urls = await uploadSemuaFoto(fotoList, function(i,n){loading('Upload foto '+(i+1)+'/'+n+'...');});
+    var firstFoto = urls.length>0?urls[0]:null;
+    var payload={
+      nama:nama, harga:Number(harga),
+      kategori:document.getElementById('fKat').value||null,
+      stok:Number(document.getElementById('fStok').value)||0,
+      deskripsi:document.getElementById('fDesk').value.trim()||null,
+      gambar_url:firstFoto
+    };
+    var h=hdrs('application/json'); h['Prefer']='return=representation';
+    var res;
+    if(editId){
+      res=await fetch(URL_SB+'/rest/v1/produk?id=eq.'+editId,{method:'PATCH',headers:h,body:JSON.stringify(payload)});
+    } else {
+      res=await fetch(URL_SB+'/rest/v1/produk',{method:'POST',headers:h,body:JSON.stringify(payload)});
+    }
+    if(!res.ok) throw new Error('Gagal simpan produk');
+    toast(editId?'✅ Produk diperbarui!':'✅ Produk ditambahkan!');
+    resetForm();
+    loadProduk();
+    switchTab('Daftar');
+  } catch(e) { toast('❌ '+e.message); }
+  loading(null);
+}
+
+// ======== MODAL EDIT (dari tab daftar) ========
+function bukaEdit(id) {
+  var p=dataProduk.find(function(x){return x.id===id;});
+  if(!p) return;
+  editId=id;
+  fotoListModal=p.gambar_url?[{url:p.gambar_url,isNew:false}]:[];
+  document.getElementById('modalJudul').textContent='✏️ Edit '+numFmt(p.nomor);
+  document.getElementById('mNama').value=p.nama;
+  document.getElementById('mHarga').value=p.harga;
+  document.getElementById('mKat').value=p.kategori||'';
+  document.getElementById('mStok').value=p.stok||0;
+  document.getElementById('mDesk').value=p.deskripsi||'';
+  renderFotoGridModal();
+  document.getElementById('overlay').classList.add('show');
+}
+
+function tutupModal(){ document.getElementById('overlay').classList.remove('show'); editId=null; }
+
+async function simpanModal() {
+  var nama=document.getElementById('mNama').value.trim();
+  var harga=document.getElementById('mHarga').value;
+  if(!nama||!harga){toast('⚠️ Nama dan harga wajib!');return;}
+  loading('Menyimpan...');
+  try {
+    var urls=await uploadSemuaFoto(fotoListModal,function(i,n){loading('Upload foto '+(i+1)+'/'+n+'...');});
+    var firstFoto=urls.length>0?urls[0]:(fotoListModal.length>0?fotoListModal[0].url:null);
+    var payload={
+      nama:nama, harga:Number(harga),
+      kategori:document.getElementById('mKat').value||null,
+      stok:Number(document.getElementById('mStok').value)||0,
+      deskripsi:document.getElementById('mDesk').value.trim()||null,
+      gambar_url:firstFoto
+    };
+    var h=hdrs('application/json'); h['Prefer']='return=representation';
+    var res=await fetch(URL_SB+'/rest/v1/produk?id=eq.'+editId,{method:'PATCH',headers:h,body:JSON.stringify(payload)});
+    if(!res.ok) throw new Error('Gagal menyimpan');
+    toast('✅ Produk diperbarui!');
+    tutupModal();
+    loadProduk();
+  } catch(e){ toast('❌ '+e.message); }
+  loading(null);
+}
+
+// ======== HAPUS ========
+async function hapus(id, nama) {
+  if(!confirm('Hapus "'+nama+'"?')) return;
+  loading('Menghapus...');
+  try {
+    var res=await fetch(URL_SB+'/rest/v1/produk?id=eq.'+id,{method:'DELETE',headers:hdrs()});
+    if(!res.ok) throw new Error('Gagal hapus');
+    toast('🗑 Produk dihapus');
+    loadProduk();
+  } catch(e){ toast('❌ '+e.message); }
+  loading(null);
+}
+
+// ======== UPLOAD FOTO ========
+async function uploadFoto(file) {
+  var ext=file.name.split('.').pop();
+  var nama=Date.now()+'_'+Math.random().toString(36).substr(2,5)+'.'+ext;
+  var res=await fetch(URL_SB+'/storage/v1/object/'+BUCKET+'/'+nama,{
+    method:'POST',
+    headers:{'apikey':KEY_SB,'Authorization':'Bearer '+KEY_SB,'Content-Type':file.type,'x-upsert':'true'},
+    body:file
+  });
+  if(!res.ok) throw new Error('Upload foto gagal');
+  return nama;
+}
+
+async function uploadSemuaFoto(list, onProgress) {
+  var urls=[];
+  var newItems=list.filter(function(f){return f.isNew;});
+  var oldItems=list.filter(function(f){return !f.isNew;});
+  for(var i=0;i<newItems.length;i++){
+    if(onProgress) onProgress(i,newItems.length);
+    var url=await uploadFoto(newItems[i].file);
+    urls.push(url);
+  }
+  oldItems.forEach(function(f){urls.push(f.url);});
+  return urls;
+}
+</script>
+</body>
+</html>
